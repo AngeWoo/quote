@@ -443,22 +443,12 @@
     </div>
 
     <script>
-        // 直接使用從 Google Sheets 載入的資料
-        // 如需更新：請複製 Google Sheets 的內容並手動更新此陣列
-        // Google Sheets URL: https://docs.google.com/spreadsheets/d/e/2PACX-1vTQp08ZcC5kK1DRs8jE0FYXwmFLh5wXTxJZgdjuOK8s_UIcovZaqKqJhRIAa-Qz3yh5O80cs55euiKp/pubhtml
-        const QUOTES_DATA = [
-            "信仰心並非形式. 點不著的蠟燭沒有用. 如果信仰心沒有感謝的歡喜, 就猶如熄滅的蠟燭.",
-            "追隨佛陀並非形式上的追尋. 恆明之光在哪裡? 要成為任何強風都吹不熄的燈火.",
-            "做讓人高興的事, 乍看之下好像自己有所損失. 但是佛陀的教法是, 給予他人歡喜, 自己才會幸福.",
-            "燈火快要被熄滅時, 就要添加功德油, 讓光芒更加明亮才行.",
-            "能使光芒更加明亮就是莊嚴佛陀得世界, 即使身處此世, 也能與佛陀共同歡喜.",
-            "要奉修正道. 如果只是形式上的修行. 即使看起來好像很熱心, 但是和自己的心卻和姻緣同在, 那並不是信仰.",
-            "由於認為自己是為了他人, 所以會產生妄念. 步上正確修道並非始於今日, 而是在往昔就已經訂下真理.",
-            "佛陀不會懲罰眾生, 而是因為與真理背道而馳, 所以才會有所啟示. 自己入信之後, 是否尊貴地貫徹到底, 正確修道呢? 如果自己察覺修行方式與真理背道而馳, 則道歉懺悔也是很重要的."
-        ];
+        // 使用 Google Sheets 發布的 CSV URL（參考您的簽到系統方法）
+        const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQp08ZcC5kK1DRs8jE0FYXwmFLh5wXTxJZgdjuOK8s_UIcovZaqKqJhRIAa-Qz3yh5O80cs55euiKp/pub?output=csv';
         
-        let quotes = [...QUOTES_DATA];
+        let quotes = [];
         let currentIndex = 0;
+        let isLoading = false;
         let isLoading = false;
         
         // UI 元素
@@ -473,15 +463,56 @@
             prevBtn: document.getElementById('prevBtn')
         };
 
-        // 初始化應用程式
-        function initializeApp() {
-            console.log(`載入了 ${quotes.length} 句名言`);
-            showLoading(false);
-            enableButtons();
+        // 從 Google Sheets CSV 載入名句資料（參考您的簽到系統方法）
+        async function loadQuotesFromSheet() {
+            if (isLoading) return;
             
-            // 顯示第一句
-            if (quotes.length > 0) {
-                displayQuote(0);
+            isLoading = true;
+            showLoading(true);
+            hideError();
+            
+            try {
+                console.log('正在從 Google Sheets 載入名句資料...');
+                
+                const response = await fetch(GOOGLE_SHEET_CSV_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const csvText = await response.text();
+                console.log('成功獲取 CSV 資料，長度：', csvText.length);
+                
+                const parsedQuotes = parseCSV(csvText);
+                
+                if (parsedQuotes.length === 0) {
+                    throw new Error('未找到任何名句資料');
+                }
+                
+                quotes = parsedQuotes;
+                showLoading(false);
+                enableButtons();
+                
+                // 如果是第一次載入，顯示第一句
+                if (currentIndex === 0 && quotes.length > 0) {
+                    displayQuote(0);
+                }
+                
+                console.log(`成功載入 ${quotes.length} 句名言`);
+                
+            } catch (error) {
+                console.error('載入資料時發生錯誤:', error);
+                showError(`載入失敗：${error.message}`);
+                
+                // 如果載入失敗，使用備用資料
+                if (quotes.length === 0) {
+                    quotes = getFallbackQuotes();
+                    showLoading(false);
+                    enableButtons();
+                    displayQuote(0);
+                    console.log('使用備用資料');
+                }
+            } finally {
+                isLoading = false;
             }
         }
 
@@ -665,10 +696,10 @@
             startY = 0;
         });
 
-        // 頁面載入時開始載入資料
+        // 頁面載入時初始化應用程式
         window.onload = function() {
             setTimeout(() => {
-                loadQuotesFromSheet();
+                initializeApp();
             }, 500);
         };
     </script>
