@@ -99,6 +99,29 @@
             border-radius: 2px;
         }
 
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .quote-display {
             background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             padding: 2rem;
@@ -157,6 +180,35 @@
             border: 1px solid rgba(102, 126, 234, 0.2);
         }
 
+        .data-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .refresh-status {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #48bb78;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
         .controls {
             margin-top: 2rem;
             display: flex;
@@ -182,6 +234,12 @@
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
         .btn::before {
             content: '';
             position: absolute;
@@ -195,23 +253,32 @@
             transition: width 0.6s, height 0.6s;
         }
 
-        .btn:hover {
+        .btn:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
 
-        .btn:hover::before {
+        .btn:hover:not(:disabled)::before {
             width: 300px;
             height: 300px;
         }
 
-        .btn:active {
+        .btn:active:not(:disabled) {
             transform: translateY(-1px);
         }
 
         .btn-text {
             position: relative;
             z-index: 1;
+        }
+
+        .btn-refresh {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn-refresh:hover:not(:disabled) {
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.4);
         }
 
         .fade-in {
@@ -227,6 +294,15 @@
                 opacity: 1; 
                 transform: translateY(0) scale(1); 
             }
+        }
+
+        .error-message {
+            color: #e53e3e;
+            background: rgba(229, 62, 62, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(229, 62, 62, 0.2);
+            margin: 1rem 0;
         }
 
         /* 手機優化 */
@@ -275,6 +351,12 @@
                 min-width: 100px;
                 flex: 1;
                 max-width: 140px;
+            }
+
+            .data-info {
+                flex-direction: column;
+                gap: 0.5rem;
+                font-size: 0.8rem;
             }
         }
 
@@ -337,62 +419,217 @@
         <h1>✨ 真如24拔苦代受靈訓 ✨</h1>
         
         <div class="quote-display" id="quoteDisplay">
-            <div class="quote-text" id="quoteText">
+            <div class="loading" id="loadingIndicator">
+                <div class="loading-spinner"></div>
+                <span>正在載入智慧法語...</span>
+            </div>
+            <div class="quote-text" id="quoteText" style="display: none;">
                 點擊「隨機名句」開始您的智慧之旅
             </div>
-            <span class="quote-number" id="quoteNumber"></span>
+            <span class="quote-number" id="quoteNumber" style="display: none;"></span>
+            <div class="error-message" id="errorMessage" style="display: none;"></div>
+        </div>
+
+        <div class="data-info">
+            <div class="refresh-status">
+                <div class="status-dot"></div>
+                <span>資料來源：Google 試算表</span>
+            </div>
+            <span id="lastUpdated">最後更新：載入中...</span>
         </div>
         
         <div class="controls">
-            <button class="btn" onclick="getRandomQuote()">
+            <button class="btn" id="randomBtn" onclick="getRandomQuote()" disabled>
                 <span class="btn-text">🎲 隨機名句</span>
             </button>
-            <button class="btn" onclick="getNextQuote()">
+            <button class="btn" id="nextBtn" onclick="getNextQuote()" disabled>
                 <span class="btn-text">➡️ 下一句</span>
             </button>
-            <button class="btn" onclick="getPrevQuote()">
+            <button class="btn" id="prevBtn" onclick="getPrevQuote()" disabled>
                 <span class="btn-text">⬅️ 上一句</span>
+            </button>
+            <button class="btn btn-refresh" id="refreshBtn" onclick="refreshData()">
+                <span class="btn-text">🔄 重新載入</span>
             </button>
         </div>
     </div>
 
     <script>
-        const quotes = [
-            "信仰心並非形式. 點不著的蠟燭沒有用. 如果信仰心沒有感謝的歡喜, 就猶如熄滅的蠟燭.",
-            "追隨佛陀並非形式上的追尋. 恆明之光在哪裡? 要成為任何強風都吹不熄的燈火.",
-            "做讓人高興的事, 乍看之下好像自己有所損失. 但是佛陀的教法是, 給予他人歡喜, 自己才會幸福.",
-            "燈火快要被熄滅時, 就要添加功德油, 讓光芒更加明亮才行.",
-            "能使光芒更加明亮就是莊嚴佛陀得世界, 即使身處此世, 也能與佛陀共同歡喜.",
-            "要奉修正道. 如果只是形式上的修行. 即使看起來好像很熱心, 但是和自己的心卻和姻緣同在, 那並不是信仰.",
-            "由於認為自己是為了他人, 所以會產生妄念. 步上正確修道並非始於今日, 而是在往昔就已經訂下真理.",
-            "佛陀不會懲罰眾生, 而是因為與真理背道而馳, 所以才會有所啟示. 自己入信之後, 是否尊貴地貫徹到底, 正確修道呢? 如果自己察覺修行方式與真理背道而馳, 則道歉懺悔也是很重要的."
-        ];
-
+        // Google Sheets 公開 CSV URL
+        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQp08ZcC5kK1DRs8jE0FYXwmFLh5wXTxJZgdjuOK8s_UIcovZaqKqJhRIAa-Qz3yh5O80cs55euiKp/pub?output=csv';
+        
+        let quotes = [];
         let currentIndex = 0;
+        let isLoading = false;
+        
+        // UI 元素
+        const elements = {
+            quoteText: document.getElementById('quoteText'),
+            quoteNumber: document.getElementById('quoteNumber'),
+            quoteDisplay: document.getElementById('quoteDisplay'),
+            loadingIndicator: document.getElementById('loadingIndicator'),
+            errorMessage: document.getElementById('errorMessage'),
+            lastUpdated: document.getElementById('lastUpdated'),
+            randomBtn: document.getElementById('randomBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            prevBtn: document.getElementById('prevBtn'),
+            refreshBtn: document.getElementById('refreshBtn')
+        };
 
-        function displayQuote(index) {
-            const quoteText = document.getElementById('quoteText');
-            const quoteNumber = document.getElementById('quoteNumber');
-            const quoteDisplay = document.getElementById('quoteDisplay');
+        // 從 Google Sheets 載入資料
+        async function loadQuotesFromSheet() {
+            if (isLoading) return;
             
-            quoteDisplay.classList.remove('fade-in');
+            isLoading = true;
+            showLoading(true);
+            hideError();
+            
+            try {
+                const response = await fetch(SHEET_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const csvText = await response.text();
+                const parsedQuotes = parseCSV(csvText);
+                
+                if (parsedQuotes.length === 0) {
+                    throw new Error('未找到任何名句資料');
+                }
+                
+                quotes = parsedQuotes;
+                updateLastUpdatedTime();
+                showLoading(false);
+                enableButtons();
+                
+                // 如果是第一次載入，顯示第一句
+                if (currentIndex === 0) {
+                    displayQuote(0);
+                }
+                
+                console.log(`成功載入 ${quotes.length} 句名言`);
+                
+            } catch (error) {
+                console.error('載入資料時發生錯誤:', error);
+                showError(`載入失敗：${error.message}`);
+                
+                // 如果載入失敗且沒有舊資料，使用備用資料
+                if (quotes.length === 0) {
+                    quotes = getFallbackQuotes();
+                    showLoading(false);
+                    enableButtons();
+                    displayQuote(0);
+                    console.log('使用備用資料');
+                }
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // 解析 CSV 資料
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const parsedQuotes = [];
+            
+            // 跳過標題行，從第二行開始
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line) {
+                    // 簡單的 CSV 解析（假設只有兩列：編號和內容）
+                    const columns = line.split(',');
+                    if (columns.length >= 2) {
+                        // 移除引號並清理文字
+                        const quote = columns.slice(1).join(',').replace(/^"|"$/g, '').trim();
+                        if (quote) {
+                            parsedQuotes.push(quote);
+                        }
+                    }
+                }
+            }
+            
+            return parsedQuotes;
+        }
+
+        // 備用資料（原始硬編碼的名句）
+        function getFallbackQuotes() {
+            return [
+                "信仰心並非形式. 點不著的蠟燭沒有用. 如果信仰心沒有感謝的歡喜, 就猶如熄滅的蠟燭.",
+                "追隨佛陀並非形式上的追尋. 恆明之光在哪裡? 要成為任何強風都吹不熄的燈火.",
+                "做讓人高興的事, 乍看之下好像自己有所損失. 但是佛陀的教法是, 給予他人歡喜, 自己才會幸福.",
+                "燈火快要被熄滅時, 就要添加功德油, 讓光芒更加明亮才行.",
+                "能使光芒更加明亮就是莊嚴佛陀得世界, 即使身處此世, 也能與佛陀共同歡喜.",
+                "要奉修正道. 如果只是形式上的修行. 即使看起來好像很熱心, 但是和自己的心卻和姻緣同在, 那並不是信仰.",
+                "由於認為自己是為了他人, 所以會產生妄念. 步上正確修道並非始於今日, 而是在往昔就已經訂下真理.",
+                "佛陀不會懲罰眾生, 而是因為與真理背道而馳, 所以才會有所啟示. 自己入信之後, 是否尊貴地貫徹到底, 正確修道呢? 如果自己察覺修行方式與真理背道而馳, 則道歉懺悔也是很重要的."
+            ];
+        }
+
+        // 顯示載入狀態
+        function showLoading(show) {
+            elements.loadingIndicator.style.display = show ? 'flex' : 'none';
+            elements.quoteText.style.display = show ? 'none' : 'block';
+            elements.quoteNumber.style.display = show ? 'none' : 'inline-block';
+        }
+
+        // 顯示錯誤訊息
+        function showError(message) {
+            elements.errorMessage.textContent = message;
+            elements.errorMessage.style.display = 'block';
+            setTimeout(() => {
+                elements.errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // 隱藏錯誤訊息
+        function hideError() {
+            elements.errorMessage.style.display = 'none';
+        }
+
+        // 更新最後更新時間
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('zh-TW', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            elements.lastUpdated.textContent = `最後更新：${timeString}`;
+        }
+
+        // 啟用按鈕
+        function enableButtons() {
+            elements.randomBtn.disabled = false;
+            elements.nextBtn.disabled = false;
+            elements.prevBtn.disabled = false;
+        }
+
+        // 顯示名句
+        function displayQuote(index) {
+            if (quotes.length === 0) return;
+            
+            elements.quoteDisplay.classList.remove('fade-in');
             
             // 添加淡出效果
-            quoteDisplay.style.opacity = '0.7';
-            quoteDisplay.style.transform = 'scale(0.98)';
+            elements.quoteDisplay.style.opacity = '0.7';
+            elements.quoteDisplay.style.transform = 'scale(0.98)';
             
             setTimeout(() => {
-                quoteText.textContent = quotes[index];
-                quoteNumber.textContent = `第 ${index + 1} 句`;
-                quoteDisplay.classList.add('fade-in');
-                quoteDisplay.style.opacity = '1';
-                quoteDisplay.style.transform = 'scale(1)';
+                elements.quoteText.textContent = quotes[index];
+                elements.quoteNumber.textContent = `第 ${index + 1} 句 / 共 ${quotes.length} 句`;
+                elements.quoteDisplay.classList.add('fade-in');
+                elements.quoteDisplay.style.opacity = '1';
+                elements.quoteDisplay.style.transform = 'scale(1)';
             }, 150);
             
             currentIndex = index;
         }
 
+        // 隨機顯示名句
         function getRandomQuote() {
+            if (quotes.length === 0) return;
+            
             let randomIndex;
             do {
                 randomIndex = Math.floor(Math.random() * quotes.length);
@@ -401,18 +638,29 @@
             displayQuote(randomIndex);
         }
 
+        // 下一句
         function getNextQuote() {
+            if (quotes.length === 0) return;
             const nextIndex = (currentIndex + 1) % quotes.length;
             displayQuote(nextIndex);
         }
 
+        // 上一句
         function getPrevQuote() {
+            if (quotes.length === 0) return;
             const prevIndex = currentIndex === 0 ? quotes.length - 1 : currentIndex - 1;
             displayQuote(prevIndex);
         }
 
+        // 重新載入資料
+        function refreshData() {
+            loadQuotesFromSheet();
+        }
+
         // 鍵盤快捷鍵
         document.addEventListener('keydown', function(e) {
+            if (isLoading) return;
+            
             switch(e.key) {
                 case 'ArrowRight':
                 case ' ':
@@ -428,21 +676,24 @@
                     e.preventDefault();
                     getRandomQuote();
                     break;
+                case 'F5':
+                    e.preventDefault();
+                    refreshData();
+                    break;
             }
         });
 
         // 觸控滑動支持
         let startX = 0;
         let startY = 0;
-        const quoteDisplay = document.getElementById('quoteDisplay');
 
-        quoteDisplay.addEventListener('touchstart', function(e) {
+        elements.quoteDisplay.addEventListener('touchstart', function(e) {
             startX = e.touches[0].clientX;
             startY = e.touches[0].clientY;
         });
 
-        quoteDisplay.addEventListener('touchend', function(e) {
-            if (!startX || !startY) return;
+        elements.quoteDisplay.addEventListener('touchend', function(e) {
+            if (!startX || !startY || isLoading) return;
             
             const endX = e.changedTouches[0].clientX;
             const endY = e.changedTouches[0].clientY;
@@ -465,18 +716,19 @@
             startY = 0;
         });
 
-        // 頁面載入時顯示第一句
+        // 頁面載入時開始載入資料
         window.onload = function() {
             setTimeout(() => {
-                displayQuote(0);
+                loadQuotesFromSheet();
             }, 500);
         };
 
-        // 預載下一句以提升體驗
-        function preloadNextQuote() {
-            const nextIndex = (currentIndex + 1) % quotes.length;
-            // 可以在這裡進行預載邏輯
-        }
+        // 定期檢查更新（每5分鐘）
+        setInterval(() => {
+            if (!isLoading) {
+                loadQuotesFromSheet();
+            }
+        }, 5 * 60 * 1000);
     </script>
 </body>
 </html>
