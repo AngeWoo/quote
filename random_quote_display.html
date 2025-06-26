@@ -180,34 +180,7 @@
             border: 1px solid rgba(102, 126, 234, 0.2);
         }
 
-        .data-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
-            font-size: 0.85rem;
-            color: #718096;
-        }
 
-        .refresh-status {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #48bb78;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
 
         .controls {
             margin-top: 2rem;
@@ -429,14 +402,6 @@
             <span class="quote-number" id="quoteNumber" style="display: none;"></span>
             <div class="error-message" id="errorMessage" style="display: none;"></div>
         </div>
-
-        <div class="data-info">
-            <div class="refresh-status">
-                <div class="status-dot"></div>
-                <span>資料來源：Google 試算表</span>
-            </div>
-            <span id="lastUpdated">最後更新：載入中...</span>
-        </div>
         
         <div class="controls">
             <button class="btn" id="randomBtn" onclick="getRandomQuote()" disabled>
@@ -447,9 +412,6 @@
             </button>
             <button class="btn" id="prevBtn" onclick="getPrevQuote()" disabled>
                 <span class="btn-text">⬅️ 上一句</span>
-            </button>
-            <button class="btn btn-refresh" id="refreshBtn" onclick="refreshData()">
-                <span class="btn-text">🔄 重新載入</span>
             </button>
         </div>
     </div>
@@ -469,11 +431,9 @@
             quoteDisplay: document.getElementById('quoteDisplay'),
             loadingIndicator: document.getElementById('loadingIndicator'),
             errorMessage: document.getElementById('errorMessage'),
-            lastUpdated: document.getElementById('lastUpdated'),
             randomBtn: document.getElementById('randomBtn'),
             nextBtn: document.getElementById('nextBtn'),
-            prevBtn: document.getElementById('prevBtn'),
-            refreshBtn: document.getElementById('refreshBtn')
+            prevBtn: document.getElementById('prevBtn')
         };
 
         // 從 Google Sheets 載入資料
@@ -498,7 +458,6 @@
                 }
                 
                 quotes = parsedQuotes;
-                updateLastUpdatedTime();
                 showLoading(false);
                 enableButtons();
                 
@@ -676,10 +635,6 @@
                     e.preventDefault();
                     getRandomQuote();
                     break;
-                case 'F5':
-                    e.preventDefault();
-                    refreshData();
-                    break;
             }
         });
 
@@ -722,13 +677,6 @@
                 loadQuotesFromSheet();
             }, 500);
         };
-
-        // 定期檢查更新（每5分鐘）
-        setInterval(() => {
-            if (!isLoading) {
-                loadQuotesFromSheet();
-            }
-        }, 5 * 60 * 1000);
     </script>
 </body>
 </html>
