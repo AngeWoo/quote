@@ -375,11 +375,18 @@
                 flex-direction: column;
                 gap: 0.5rem;
             }
+
+            .nav-controls {
+                gap: 0.8rem;
+            }
             
             .btn {
-                width: 100%;
-                max-width: none;
                 padding: 12px 20px;
+            }
+
+            .btn-random {
+                align-self: center;
+                max-width: 160px;
             }
         }
 
@@ -421,25 +428,27 @@
         </div>
         
         <div class="controls">
-            <button class="btn" id="randomBtn" onclick="getRandomQuote()" disabled>
+            <button class="btn btn-random" id="randomBtn" onclick="getRandomQuote()" disabled>
                 <span class="btn-text">🎲 隨機名句</span>
             </button>
-            <button class="btn" id="nextBtn" onclick="getNextQuote()" disabled>
-                <span class="btn-text">➡️ 下一句</span>
-            </button>
-            <button class="btn" id="prevBtn" onclick="getPrevQuote()" disabled>
-                <span class="btn-text">⬅️ 上一句</span>
-            </button>
+            <div class="nav-controls">
+                <button class="btn" id="prevBtn" onclick="getPrevQuote()" disabled>
+                    <span class="btn-text">⬅️ 上一句</span>
+                </button>
+                <button class="btn" id="nextBtn" onclick="getNextQuote()" disabled>
+                    <span class="btn-text">➡️ 下一句</span>
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Google Sheets 公開 CSV URL (加上禁用快取參數)
-        const SHEET_BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQp08ZcC5kK1DRs8jE0FYXwmFLh5wXTxJZgdjuOK8s_UIcovZaqKqJhRIAa-Qz3yh5O80cs55euiKp/pub?output=csv';
+        // 使用您指定的 Google Sheets 公開 HTML URL
+        const SHEET_BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQp08ZcC5kK1DRs8jE0FYXwmFLh5wXTxJZgdjuOK8s_UIcovZaqKqJhRIAa-Qz3yh5O80cs55euiKp/pubhtml';
         
         function getSheetURL() {
-            // 加上時間戳記避免快取
-            return SHEET_BASE_URL + '&t=' + new Date().getTime();
+            // 加上隨機參數避免快取，確保抓取即時資料
+            return SHEET_BASE_URL + '?gid=0&single=true&widget=true&headers=false&chrome=false&t=' + new Date().getTime() + '&r=' + Math.random();
         }
         
         let quotes = [];
@@ -467,18 +476,25 @@
             hideError();
             
             try {
+                console.log('正在從 Google 文件載入即時資料...');
+                console.log('URL:', getSheetURL());
+                
                 const response = await fetch(getSheetURL(), {
-                    cache: 'no-cache',
+                    method: 'GET',
+                    mode: 'cors',
+                    cache: 'no-store',
                     headers: {
-                        'Cache-Control': 'no-cache'
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
                     }
                 });
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
-                const csvText = await response.text();
-                const parsedQuotes = parseCSV(csvText);
+                const htmlText = await response.text();
+                const parsedQuotes = parseHTML(htmlText);
                 
                 if (parsedQuotes.length === 0) {
                     throw new Error('未找到任何名句資料');
@@ -512,43 +528,111 @@
             }
         }
 
-        // 解析 CSV 資料
-        function parseCSV(csvText) {
-            const lines = csvText.trim().split('\n');
+        // 解析 HTML 資料 (從指定的 Google Sheets HTML 版本)
+        function parseHTML(htmlText) {
             const parsedQuotes = [];
             
-            console.log('CSV 原始資料：', csvText);
-            console.log('總行數：', lines.length);
-            
-            // 從第一行開始處理每一行
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].trim();
-                console.log(`處理第 ${i + 1} 行：`, line);
+            try {
+                console.log('開始解析 HTML 資料，內容長度：', htmlText.length);
                 
-                if (line) {
-                    // 處理 CSV 格式，分離編號和內容
-                    const commaIndex = line.indexOf(',');
-                    if (commaIndex !== -1) {
-                        // 取得編號後的所有內容
-                        let quote = line.substring(commaIndex + 1).trim();
+                // 創建臨時 DOM 元素來解析 HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+                
+                // 多種方式尋找表格資料
+                let table = doc.querySelector('table.waffle') || 
+                           doc.querySelector('table') || 
+                           doc.querySelector('.grid-container table');
+                
+                if (!table) {
+                    console.log('未找到標準表格，嘗試尋找其他容器...');
+                    // 嘗試尋找包含資料的其他容器
+                    const containers = doc.querySelectorAll('div, span, td');
+                    for (let container of containers) {
+                        const text = container.textContent.trim();
+                        // 檢查是否包含我們已知的名句片段
+                        if (text.includes('信仰心並非形式') || text.includes('追隨佛陀並非') || text.includes('做讓人高興的事')) {
+                            console.log('找到包含資料的容器');
+                            return parseHTMLAlternative(htmlText);
+                        }
+                    }
+                    return parseHTMLAlternative(htmlText);
+                }
+                
+                console.log('找到表格，開始解析...');
+                const rows = table.querySelectorAll('tr');
+                console.log(`表格中有 ${rows.length} 行`);
+                
+                for (let i = 0; i < rows.length; i++) {
+                    const cells = rows[i].querySelectorAll('td, th');
+                    console.log(`第 ${i + 1} 行有 ${cells.length} 列`);
+                    
+                    if (cells.length >= 2) {
+                        // 嘗試第二列作為名句內容
+                        let quote = cells[1].textContent.trim();
                         
-                        // 移除開頭和結尾的引號
-                        if (quote.startsWith('"') && quote.endsWith('"')) {
-                            quote = quote.slice(1, -1);
+                        // 如果第二列是空的或只是數字，嘗試第一列
+                        if (!quote || quote.match(/^\d+$/) || quote.length < 5) {
+                            quote = cells[0].textContent.trim();
                         }
                         
-                        // 處理 CSV 中的雙引號轉義
-                        quote = quote.replace(/""/g, '"');
-                        
-                        if (quote && quote.length > 5) {
+                        if (quote && quote.length > 10 && !quote.match(/^\d+$/)) {
                             parsedQuotes.push(quote);
-                            console.log(`成功解析第 ${parsedQuotes.length} 句：`, quote);
+                            console.log(`解析第 ${parsedQuotes.length} 句：`, quote.substring(0, 50) + '...');
+                        }
+                    } else if (cells.length === 1) {
+                        // 單列的情況，可能整句都在一個儲存格
+                        const quote = cells[0].textContent.trim();
+                        if (quote && quote.length > 10 && !quote.match(/^\d+$/)) {
+                            parsedQuotes.push(quote);
+                            console.log(`解析第 ${parsedQuotes.length} 句（單列）：`, quote.substring(0, 50) + '...');
                         }
                     }
                 }
+                
+            } catch (error) {
+                console.error('HTML 解析錯誤：', error);
+                return parseHTMLAlternative(htmlText);
             }
             
-            console.log(`總共解析到 ${parsedQuotes.length} 句名言`);
+            console.log(`主要方法總共解析到 ${parsedQuotes.length} 句名言`);
+            
+            // 如果主要方法沒有找到足夠的資料，嘗試備用方法
+            if (parsedQuotes.length === 0) {
+                console.log('主要方法未找到資料，使用備用方法...');
+                return parseHTMLAlternative(htmlText);
+            }
+            
+            return parsedQuotes;
+        }
+
+        // 備用 HTML 解析方法
+        function parseHTMLAlternative(htmlText) {
+            const parsedQuotes = [];
+            console.log('使用備用解析方法...');
+            
+            // 使用正則表達式從 HTML 中提取表格資料
+            const tablePattern = /<td[^>]*>(.*?)<\/td>/g;
+            const matches = [];
+            let match;
+            
+            while ((match = tablePattern.exec(htmlText)) !== null) {
+                const content = match[1].replace(/<[^>]*>/g, '').trim();
+                if (content) {
+                    matches.push(content);
+                }
+            }
+            
+            // 假設是兩列的表格（編號、內容），取奇數索引的內容
+            for (let i = 1; i < matches.length; i += 2) {
+                const quote = matches[i];
+                if (quote && quote.length > 5 && !quote.match(/^\d+$/)) {
+                    parsedQuotes.push(quote);
+                    console.log(`備用方法解析第 ${parsedQuotes.length} 句：`, quote.substring(0, 30) + '...');
+                }
+            }
+            
+            console.log(`備用方法總共解析到 ${parsedQuotes.length} 句名言`);
             return parsedQuotes;
         }
 
