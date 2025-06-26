@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隨機經典名句</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 90%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            color: #4a5568;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .quote-display {
+            background: #f7fafc;
+            padding: 2.5rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .quote-text {
+            font-size: 1.5rem;
+            line-height: 1.8;
+            color: #2d3748;
+            font-style: italic;
+            text-align: justify;
+            max-width: 100%;
+        }
+
+        .quote-number {
+            display: block;
+            margin-top: 1rem;
+            color: #667eea;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .controls {
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem;
+                width: 95%;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .quote-text {
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+                margin: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ 經典智慧名句 ✨</h1>
+        
+        <div class="quote-display" id="quoteDisplay">
+            <div class="quote-text" id="quoteText">
+                點擊「隨機名句」開始您的智慧之旅
+                <span class="quote-number" id="quoteNumber"></span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" onclick="getRandomQuote()">🎲 隨機名句</button>
+            <button class="btn" onclick="getNextQuote()">➡️ 下一句</button>
+            <button class="btn" onclick="getPrevQuote()">⬅️ 上一句</button>
+        </div>
+    </div>
+
+    <script>
+        const quotes = [
+            "信仰心並非形式. 點不著的蠟燭沒有用. 如果信仰心沒有感謝的歡喜, 就猶如熄滅的蠟燭.",
+            "追隨佛陀並非形式上的追尋. 恆明之光在哪裡? 要成為任何強風都吹不熄的燈火.",
+            "做讓人高興的事, 乍看之下好像自己有所損失. 但是佛陀的教法是, 給予他人歡喜, 自己才會幸福.",
+            "燈火快要被熄滅時, 就要添加功德油, 讓光芒更加明亮才行.",
+            "能使光芒更加明亮就是莊嚴佛陀得世界, 即使身處此世, 也能與佛陀共同歡喜.",
+            "要奉修正道. 如果只是形式上的修行. 即使看起來好像很熱心, 但是和自己的心卻和姻緣同在, 那並不是信仰.",
+            "由於認為自己是為了他人, 所以會產生妄念. 步上正確修道並非始於今日, 而是在往昔就已經訂下真理.",
+            "佛陀不會懲罰眾生, 而是因為與真理背道而馳, 所以才會有所啟示. 自己入信之後, 是否尊貴地貫徹到底, 正確修道呢? 如果自己察覺修行方式與真理背道而馳, 則道歉懺悔也是很重要的."
+        ];
+
+        let currentIndex = 0;
+
+        function displayQuote(index) {
+            const quoteText = document.getElementById('quoteText');
+            const quoteNumber = document.getElementById('quoteNumber');
+            const quoteDisplay = document.getElementById('quoteDisplay');
+            
+            quoteDisplay.classList.remove('fade-in');
+            
+            setTimeout(() => {
+                quoteText.innerHTML = quotes[index] + '<span class="quote-number">第 ' + (index + 1) + ' 句</span>';
+                quoteDisplay.classList.add('fade-in');
+            }, 100);
+            
+            currentIndex = index;
+        }
+
+        function getRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            displayQuote(randomIndex);
+        }
+
+        function getNextQuote() {
+            const nextIndex = (currentIndex + 1) % quotes.length;
+            displayQuote(nextIndex);
+        }
+
+        function getPrevQuote() {
+            const prevIndex = currentIndex === 0 ? quotes.length - 1 : currentIndex - 1;
+            displayQuote(prevIndex);
+        }
+
+        // 頁面載入時顯示第一句
+        window.onload = function() {
+            displayQuote(0);
+        };
+    </script>
+</body>
+</html>
