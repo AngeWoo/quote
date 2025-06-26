@@ -459,147 +459,21 @@
             prevBtn: document.getElementById('prevBtn')
         };
 
-        // 從 Google Sheets HTML 載入名句資料
-        async function loadQuotesFromSheet() {
-            if (isLoading) return;
+        // 初始化應用程式
+        function initializeApp() {
+            console.log(`已載入 ${quotes.length} 句真如名言`);
+            showLoading(false);
+            enableButtons();
             
-            isLoading = true;
-            showLoading(true);
-            hideError();
-            
-            try {
-                console.log('正在從 Google Sheets 載入名句資料...');
-                
-                const response = await fetch(GOOGLE_SHEET_HTML_URL + '?t=' + new Date().getTime());
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const htmlText = await response.text();
-                console.log('成功獲取 HTML 資料，長度：', htmlText.length);
-                
-                const parsedQuotes = parseHTML(htmlText);
-                
-                if (parsedQuotes.length === 0) {
-                    throw new Error('未找到任何名句資料');
-                }
-                
-                quotes = parsedQuotes;
-                showLoading(false);
-                enableButtons();
-                
-                // 如果是第一次載入，顯示第一句
-                if (currentIndex === 0 && quotes.length > 0) {
-                    displayQuote(0);
-                }
-                
-                console.log(`成功載入 ${quotes.length} 句名言`);
-                
-            } catch (error) {
-                console.error('載入資料時發生錯誤:', error);
-                showError(`載入失敗：${error.message}`);
-                
-                // 如果載入失敗，使用備用資料
-                if (quotes.length === 0) {
-                    quotes = getFallbackQuotes();
-                    showLoading(false);
-                    enableButtons();
-                    displayQuote(0);
-                    console.log('使用備用資料');
-                }
-            } finally {
-                isLoading = false;
+            // 顯示第一句
+            if (quotes.length > 0) {
+                displayQuote(0);
             }
-        }
-
-        // 解析 HTML 資料（從 Google Sheets HTML 版本）
-        function parseHTML(htmlText) {
-            const parsedQuotes = [];
-            
-            try {
-                console.log('開始解析 HTML 資料...');
-                
-                // 創建臨時 DOM 元素來解析 HTML
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlText, 'text/html');
-                
-                // 尋找表格中的資料
-                const table = doc.querySelector('table');
-                if (!table) {
-                    console.log('未找到表格，嘗試其他方式...');
-                    return parseHTMLAlternative(htmlText);
-                }
-                
-                const rows = table.querySelectorAll('tr');
-                console.log(`找到 ${rows.length} 行資料`);
-                
-                for (let i = 0; i < rows.length; i++) {
-                    const cells = rows[i].querySelectorAll('td');
-                    if (cells.length >= 2) {
-                        // 第二列是名句內容
-                        const quote = cells[1].textContent.trim();
-                        if (quote && quote.length > 10) {
-                            parsedQuotes.push(quote);
-                            console.log(`解析第 ${parsedQuotes.length} 句：`, quote.substring(0, 50) + '...');
-                        }
-                    }
-                }
-                
-                // 如果沒有找到足夠資料，使用備用方法
-                if (parsedQuotes.length === 0) {
-                    return parseHTMLAlternative(htmlText);
-                }
-                
-            } catch (error) {
-                console.error('HTML 解析錯誤：', error);
-                return parseHTMLAlternative(htmlText);
-            }
-            
-            console.log(`HTML 解析總共找到 ${parsedQuotes.length} 句名言`);
-            return parsedQuotes;
-        }
-
-        // 備用 HTML 解析方法
-        function parseHTMLAlternative(htmlText) {
-            const parsedQuotes = [];
-            console.log('使用備用 HTML 解析方法...');
-            
-            // 直接從我們看到的資料中提取
-            const knownQuotes = [
-                "信仰心並非形式. 點不著的蠟燭沒有用. 如果信仰心沒有感謝的歡喜, 就猶如熄滅的蠟燭.",
-                "追隨佛陀並非形式上的追尋. 恆明之光在哪裡? 要成為任何強風都吹不熄的燈火.",
-                "做讓人高興的事, 乍看之下好像自己有所損失. 但是佛陀的教法是, 給予他人歡喜, 自己才會幸福.",
-                "燈火快要被熄滅時, 就要添加功德油, 讓光芒更加明亮才行.",
-                "能使光芒更加明亮就是莊嚴佛陀得世界, 即使身處此世, 也能與佛陀共同歡喜.",
-                "要奉修正道. 如果只是形式上的修行. 即使看起來好像很熱心, 但是和自己的心卻和姻緣同在, 那並不是信仰.",
-                "由於認為自己是為了他人, 所以會產生妄念. 步上正確修道並非始於今日, 而是在往昔就已經訂下真理.",
-                "佛陀不會懲罰眾生, 而是因為與真理背道而馳, 所以才會有所啟示. 自己入信之後, 是否尊貴地貫徹到底, 正確修道呢? 如果自己察覺修行方式與真理背道而馳, 則道歉懺悔也是很重要的."
-            ];
-            
-            // 檢查 HTML 中是否包含這些名句
-            for (let quote of knownQuotes) {
-                if (htmlText.includes(quote.substring(0, 20))) {
-                    parsedQuotes.push(quote);
-                    console.log(`備用方法找到第 ${parsedQuotes.length} 句：`, quote.substring(0, 50) + '...');
-                }
-            }
-            
-            console.log(`備用方法總共找到 ${parsedQuotes.length} 句名言`);
-            return parsedQuotes.length > 0 ? parsedQuotes : knownQuotes;
         }
 
         // 備用資料
         function getFallbackQuotes() {
-            return [
-                "信仰心並非形式. 點不著的蠟燭沒有用. 如果信仰心沒有感謝的歡喜, 就猶如熄滅的蠟燭.",
-                "追隨佛陀並非形式上的追尋. 恆明之光在哪裡? 要成為任何強風都吹不熄的燈火.",
-                "做讓人高興的事, 乍看之下好像自己有所損失. 但是佛陀的教法是, 給予他人歡喜, 自己才會幸福.",
-                "燈火快要被熄滅時, 就要添加功德油, 讓光芒更加明亮才行.",
-                "能使光芒更加明亮就是莊嚴佛陀得世界, 即使身處此世, 也能與佛陀共同歡喜.",
-                "要奉修正道. 如果只是形式上的修行. 即使看起來好像很熱心, 但是和自己的心卻和姻緣同在, 那並不是信仰.",
-                "由於認為自己是為了他人, 所以會產生妄念. 步上正確修道並非始於今日, 而是在往昔就已經訂下真理.",
-                "佛陀不會懲罰眾生, 而是因為與真理背道而馳, 所以才會有所啟示. 自己入信之後, 是否尊貴地貫徹到底, 正確修道呢? 如果自己察覺修行方式與真理背道而馳, 則道歉懺悔也是很重要的."
-            ];
+            return [...QUOTES_DATA];
         }
 
         // 顯示載入狀態
@@ -750,10 +624,10 @@
             startY = 0;
         });
 
-        // 頁面載入時開始載入資料
+        // 頁面載入時初始化應用程式
         window.onload = function() {
             setTimeout(() => {
-                loadQuotesFromSheet();
+                initializeApp();
             }, 500);
         };
     </script>
