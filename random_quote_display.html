@@ -417,8 +417,13 @@
     </div>
 
     <script>
-        // Google Sheets 公開 CSV URL
-        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQp08ZcC5kK1DRs8jE0FYXwmFLh5wXTxJZgdjuOK8s_UIcovZaqKqJhRIAa-Qz3yh5O80cs55euiKp/pub?output=csv';
+        // Google Sheets 公開 CSV URL (加上禁用快取參數)
+        const SHEET_BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQp08ZcC5kK1DRs8jE0FYXwmFLh5wXTxJZgdjuOK8s_UIcovZaqKqJhRIAa-Qz3yh5O80cs55euiKp/pub?output=csv';
+        
+        function getSheetURL() {
+            // 加上時間戳記避免快取
+            return SHEET_BASE_URL + '&t=' + new Date().getTime();
+        }
         
         let quotes = [];
         let currentIndex = 0;
