@@ -19,7 +19,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 2rem;
+            padding: 1rem;
         }
         .container {
             background: #fff;
@@ -31,10 +31,28 @@
             text-align: center;
         }
         h1 {
-            font-size: 2rem;
+            font-size: clamp(1.2rem, 4vw, 2rem);
             margin-bottom: 1rem;
             color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            line-height: 1.2;
         }
+        
+        /* 手機版標題優化 */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+                letter-spacing: -0.5px;
+            }
+            .container {
+                padding: 1.5rem;
+            }
+            body {
+                padding: 0.5rem;
+            }
+        }
+        
         .quote-display {
             position: relative;
             padding: 1.5rem;
@@ -42,6 +60,7 @@
             background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
             border-radius: 0.5rem;
             transition: transform 0.15s ease, opacity 0.15s ease;
+            text-align: left; /* 本文靠左對齊 */
         }
         .quote-display.fade-in {
             animation: fadeIn 0.3s ease-in-out;
@@ -54,6 +73,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            text-align: center; /* 載入畫面保持置中 */
         }
         .loading-spinner {
             width: 3rem;
@@ -71,16 +91,19 @@
             font-size: 1.25rem;
             line-height: 1.6;
             color: #006064;
+            text-align: left; /* 確保本文靠左對齊 */
         }
         .quote-number {
             display: block;
             margin-top: 0.75rem;
             font-size: 0.875rem;
             color: #007c91;
+            text-align: right; /* 編號靠右對齊作為平衡 */
         }
         .error-message {
             color: #d32f2f;
             font-size: 1rem;
+            text-align: center; /* 錯誤訊息保持置中 */
         }
         .controls {
             display: flex;
@@ -122,6 +145,20 @@
         .nav-controls .btn:last-child {
             margin-right: 0;
         }
+        
+        /* 手機版按鈕優化 */
+        @media (max-width: 480px) {
+            .btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+            .quote-display {
+                padding: 1rem;
+            }
+            .quote-text {
+                font-size: 1.1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -151,6 +188,7 @@
                 </button>
             </div>
         </div>
+    </div>
 
     <script>
         // 使用 Google Sheets 公開 HTML，透過 AllOrigins 代理以解決 CORS
