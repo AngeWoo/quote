@@ -37,13 +37,15 @@
             white-space: nowrap;
             overflow: hidden;
             line-height: 1.2;
+            text-align: center;
         }
         
         /* 手機版標題優化 */
         @media (max-width: 480px) {
             h1 {
-                font-size: clamp(0.9rem, 3.5vw, 1.2rem);
-                letter-spacing: -0.5px;
+                font-size: clamp(1.3rem, 4.5vw, 1.8rem);
+                letter-spacing: -0.3px;
+                text-align: center;
             }
             .container {
                 padding: 1.5rem;
@@ -98,7 +100,7 @@
             margin-top: 0.75rem;
             font-size: 0.875rem;
             color: #007c91;
-            text-align: right; /* 編號靠右對齊作為平衡 */
+            text-align: center; /* 編號改為置中對齊 */
         }
         .error-message {
             color: #d32f2f;
