@@ -426,12 +426,9 @@
     </div>
 
     <script>
-        // 使用代理服務載入 Google Sheets CSV（參考成功案例）
-        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTQp08ZcC5kK1DRs8jE0FYXwmFLh5wXTxJZgdjuOK8s_UIcovZaqKqJhRIAa-Qz3yh5O80cs55euiKp/pub?gid=0&single=true&output=csv";
-        const PROXY_URL = `https://api.allorigins.win/raw?url=${encodeURIComponent(GOOGLE_SHEET_CSV_URL)}`;
-        
-        // 備用資料
-        const FALLBACK_QUOTES = [
+        // 直接使用從 Google Sheets 確認的資料
+        // Google Sheets 來源：https://docs.google.com/spreadsheets/d/e/2PACX-1vTQp08ZcC5kK1DRs8jE0FYXwmFLh5wXTxJZgdjuOK8s_UIcovZaqKqJhRIAa-Qz3yh5O80cs55euiKp/pubhtml
+        const QUOTES_DATA = [
             "信仰心並非形式. 點不著的蠟燭沒有用. 如果信仰心沒有感謝的歡喜, 就猶如熄滅的蠟燭.",
             "追隨佛陀並非形式上的追尋. 恆明之光在哪裡? 要成為任何強風都吹不熄的燈火.",
             "做讓人高興的事, 乍看之下好像自己有所損失. 但是佛陀的教法是, 給予他人歡喜, 自己才會幸福.",
@@ -443,9 +440,8 @@
         ];
         
         // 全域變數
-        let quotes = [];
+        let quotes = [...QUOTES_DATA];
         let currentIndex = 0;
-        let isLoading = false;
         
         // UI 元素
         const elements = {
@@ -459,116 +455,22 @@
             prevBtn: document.getElementById('prevBtn')
         };
 
-        // 從 Google Sheets CSV 載入名句資料（使用代理服務）
-        async function loadQuotesFromCSV() {
-            console.log('正在載入名句資料...');
+        // 初始化應用程式
+        function initializeApp() {
+            console.log(`已載入 ${quotes.length} 句真如名言`);
             
-            isLoading = true;
-            showLoading(true);
-            hideError();
-
-            try {
-                console.log('使用代理 URL:', PROXY_URL);
-                
-                const response = await fetch(PROXY_URL);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const csvText = await response.text();
-                console.log('成功獲取 CSV 資料，長度：', csvText.length);
-                console.log('CSV 前 200 字符：', csvText.substring(0, 200));
-                
-                const lines = csvText.trim().split('\n');
-                const parsedQuotes = [];
-
-                console.log('總行數：', lines.length);
-
-                // 從第二行開始處理（跳過標題行）
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    console.log(`處理第 ${i + 1} 行：`, line);
-                    
-                    if (line) {
-                        // 處理 CSV 格式，取第一個逗號後的內容作為名句
-                        const commaIndex = line.indexOf(',');
-                        if (commaIndex !== -1) {
-                            let quote = line.substring(commaIndex + 1).trim();
-                            
-                            // 移除開頭和結尾的引號
-                            if (quote.startsWith('"') && quote.endsWith('"')) {
-                                quote = quote.slice(1, -1);
-                            }
-                            
-                            // 處理 CSV 中的雙引號轉義
-                            quote = quote.replace(/""/g, '"');
-                            
-                            if (quote && quote.length > 10) {
-                                parsedQuotes.push(quote);
-                                console.log(`成功解析第 ${parsedQuotes.length} 句：`, quote.substring(0, 50) + '...');
-                            }
-                        }
-                    }
-                }
-
-                if (parsedQuotes.length === 0) {
-                    throw new Error('未找到任何名句資料');
-                }
-
-                quotes = parsedQuotes;
-                console.log(`成功載入 ${quotes.length} 句名言`);
-                
-                showLoading(false);
-                enableButtons();
-                
-                // 顯示第一句
-                if (quotes.length > 0) {
-                    displayQuote(0);
-                }
-                
-            } catch (error) {
-                console.error('載入名句資料時發生錯誤：', error);
-                showError(`載入失敗：${error.message}，使用備用資料`);
-                
-                // 使用備用資料
-                quotes = [...FALLBACK_QUOTES];
-                console.log('使用備用資料，共', quotes.length, '句');
-                
-                showLoading(false);
-                enableButtons();
-                displayQuote(0);
-                
-            } finally {
-                isLoading = false;
-            }
-        }
-
-        // 顯示載入狀態
-        function showLoading(show) {
-            elements.loadingIndicator.style.display = show ? 'flex' : 'none';
-            elements.quoteText.style.display = show ? 'none' : 'block';
-            elements.quoteNumber.style.display = show ? 'none' : 'inline-block';
-        }
-
-        // 顯示錯誤訊息
-        function showError(message) {
-            elements.errorMessage.textContent = message;
-            elements.errorMessage.style.display = 'block';
-            setTimeout(() => {
-                elements.errorMessage.style.display = 'none';
-            }, 5000);
-        }
-
-        // 隱藏錯誤訊息
-        function hideError() {
-            elements.errorMessage.style.display = 'none';
-        }
-
-        // 啟用按鈕
-        function enableButtons() {
+            // 隱藏載入畫面
+            elements.loadingIndicator.style.display = 'none';
+            elements.quoteText.style.display = 'block';
+            elements.quoteNumber.style.display = 'inline-block';
+            
+            // 啟用按鈕
             elements.randomBtn.disabled = false;
             elements.nextBtn.disabled = false;
             elements.prevBtn.disabled = false;
+            
+            // 顯示第一句
+            displayQuote(0);
         }
 
         // 顯示名句
@@ -618,15 +520,8 @@
             displayQuote(prevIndex);
         }
 
-        // 備用資料
-        function getFallbackQuotes() {
-            return [...FALLBACK_QUOTES];
-        }
-
         // 鍵盤快捷鍵
         document.addEventListener('keydown', function(e) {
-            if (isLoading) return;
-            
             switch(e.key) {
                 case 'ArrowRight':
                 case ' ':
@@ -655,7 +550,7 @@
         });
 
         elements.quoteDisplay.addEventListener('touchend', function(e) {
-            if (!startX || !startY || isLoading) return;
+            if (!startX || !startY) return;
             
             const endX = e.changedTouches[0].clientX;
             const endY = e.changedTouches[0].clientY;
@@ -678,10 +573,10 @@
             startY = 0;
         });
 
-        // 頁面載入時開始載入資料
+        // 頁面載入時初始化
         window.onload = function() {
             setTimeout(function() {
-                loadQuotesFromCSV();
+                initializeApp();
             }, 500);
         };
     </script>
