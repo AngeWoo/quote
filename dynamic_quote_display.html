@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>真如24拔苦代受靈訓</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            padding: 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 背景動畫裝飾 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255,255,255,0.06) 0%, transparent 50%);
+            animation: floating 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 25px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.15),
+                0 10px 25px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #667eea);
+            border-radius: 27px;
+            z-index: -1;
+            opacity: 0.3;
+            animation: borderRotate 4s linear infinite;
+        }
+
+        @keyframes borderRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h1 {
+            color: #4a5568;
+            margin-bottom: 2rem;
+            font-size: 2.2rem;
+            font-weight: 300;
+            letter-spacing: 3px;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            margin: 1rem auto;
+            border-radius: 2px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .quote-display {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 2rem;
+            border-radius: 20px;
+            margin: 2rem 0;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            box-shadow: 
+                inset 0 1px 3px rgba(0, 0, 0, 0.1),
+                0 8px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .quote-text {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: #2d3748;
+            text-align: justify;
+            max-width: 100%;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 1rem;
+        }
+
+        .quote-number {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #667eea;
+            font-size: 0.95rem;
+            font-weight: 600;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            min-width: 120px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover:not(:disabled)::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .btn-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+
+        .error-message {
+            color: #e53e3e;
+            background: rgba(229, 62, 62, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(229, 62, 62, 0.2);
+            margin: 1rem 0;
+        }
+
+        /* 手機優化 */
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+            
+            .container {
+                padding: 1.5rem;
+                border-radius: 20px;
+                margin: 0;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 1.5rem;
+                letter-spacing: 2px;
+            }
+            
+            .quote-display {
+                padding: 1.5rem;
+                margin: 1.5rem 0;
+                min-height: 150px;
+            }
+            
+            .quote-text {
+                font-size: 1.1rem;
+                line-height: 1.7;
+                text-align: left;
+            }
+            
+            .quote-number {
+                font-size: 0.85rem;
+                padding: 0.25rem 0.6rem;
+            }
+            
+            .controls {
+                margin-top: 1.5rem;
+                gap: 0.6rem;
+                flex-direction: column;
+            }
+
+            .nav-controls {
+                gap: 1rem;
+                order: 2;
+            }
+            
+            .btn {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+                min-width: 100px;
+            }
+
+            .btn-random {
+                order: 1;
+                align-self: center;
+                max-width: 140px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+                border-radius: 15px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+                letter-spacing: 1px;
+            }
+            
+            .quote-display {
+                padding: 1.2rem;
+                margin: 1rem 0;
+            }
+            
+            .quote-text {
+                font-size: 1rem;
+                line-height: 1.6;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .nav-controls {
+                gap: 0.8rem;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+            }
+
+            .btn-random {
+                align-self: center;
+                max-width: 160px;
+            }
+        }
+
+        /* 改善可讀性 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* 黑暗模式支持 */
+        @media (prefers-color-scheme: dark) {
+            .quote-display {
+                background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            }
+            
+            .quote-text {
+                color: #f7fafc;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ 真如24拔苦代受靈訓 ✨</h1>
+        
+        <div class="quote-display" id="quoteDisplay">
+            <div class="loading" id="loadingIndicator">
+                <div class="loading-spinner"></div>
+                <span>正在載入智慧法語...</span>
+            </div>
+            <div class="quote-text" id="quoteText" style="display: none;">
+                點擊「隨機名句」開始您的智慧之旅
+            </div>
+            <span class="quote-number" id="quoteNumber" style="display: none;"></span>
+            <div class="error-message" id="errorMessage" style="display: none;"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-random" id="randomBtn" onclick="getRandomQuote()" disabled>
+                <span class="btn-text">🎲 隨機名句</span>
+            </button>
+            <div class="nav-controls">
+                <button class="btn" id="prevBtn" onclick="getPrevQuote()" disabled>
+                    <span class="btn-text">⬅️ 上一句</span>
+                </button>
+                <button class="btn" id="nextBtn" onclick="getNextQuote()" disabled>
+                    <span class="btn-text">➡️ 下一句</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 使用代理服務載入 Google Sheets CSV（參考成功案例）
+        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTQp08ZcC5kK1DRs8jE0FYXwmFLh5wXTxJZgdjuOK8s_UIcovZaqKqJhRIAa-Qz3yh5O80cs55euiKp/pub?gid=0&single=true&output=csv";
+        const PROXY_URL = `https://api.allorigins.win/raw?url=${encodeURIComponent(GOOGLE_SHEET_CSV_URL)}`;
+        
+        // 備用資料
+        const FALLBACK_QUOTES = [
+            "信仰心並非形式. 點不著的蠟燭沒有用. 如果信仰心沒有感謝的歡喜, 就猶如熄滅的蠟燭.",
+            "追隨佛陀並非形式上的追尋. 恆明之光在哪裡? 要成為任何強風都吹不熄的燈火.",
+            "做讓人高興的事, 乍看之下好像自己有所損失. 但是佛陀的教法是, 給予他人歡喜, 自己才會幸福.",
+            "燈火快要被熄滅時, 就要添加功德油, 讓光芒更加明亮才行.",
+            "能使光芒更加明亮就是莊嚴佛陀得世界, 即使身處此世, 也能與佛陀共同歡喜.",
+            "要奉修正道. 如果只是形式上的修行. 即使看起來好像很熱心, 但是和自己的心卻和姻緣同在, 那並不是信仰.",
+            "由於認為自己是為了他人, 所以會產生妄念. 步上正確修道並非始於今日, 而是在往昔就已經訂下真理.",
+            "佛陀不會懲罰眾生, 而是因為與真理背道而馳, 所以才會有所啟示. 自己入信之後, 是否尊貴地貫徹到底, 正確修道呢? 如果自己察覺修行方式與真理背道而馳, 則道歉懺悔也是很重要的."
+        ];
+        
+        // 全域變數
+        let quotes = [];
+        let currentIndex = 0;
+        let isLoading = false;
+        
+        // UI 元素
+        const elements = {
+            quoteText: document.getElementById('quoteText'),
+            quoteNumber: document.getElementById('quoteNumber'),
+            quoteDisplay: document.getElementById('quoteDisplay'),
+            loadingIndicator: document.getElementById('loadingIndicator'),
+            errorMessage: document.getElementById('errorMessage'),
+            randomBtn: document.getElementById('randomBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            prevBtn: document.getElementById('prevBtn')
+        };
+
+        // 從 Google Sheets CSV 載入名句資料（使用代理服務）
+        async function loadQuotesFromCSV() {
+            console.log('正在載入名句資料...');
+            
+            isLoading = true;
+            showLoading(true);
+            hideError();
+
+            try {
+                console.log('使用代理 URL:', PROXY_URL);
+                
+                const response = await fetch(PROXY_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const csvText = await response.text();
+                console.log('成功獲取 CSV 資料，長度：', csvText.length);
+                console.log('CSV 前 200 字符：', csvText.substring(0, 200));
+                
+                const lines = csvText.trim().split('\n');
+                const parsedQuotes = [];
+
+                console.log('總行數：', lines.length);
+
+                // 從第二行開始處理（跳過標題行）
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    console.log(`處理第 ${i + 1} 行：`, line);
+                    
+                    if (line) {
+                        // 處理 CSV 格式，取第一個逗號後的內容作為名句
+                        const commaIndex = line.indexOf(',');
+                        if (commaIndex !== -1) {
+                            let quote = line.substring(commaIndex + 1).trim();
+                            
+                            // 移除開頭和結尾的引號
+                            if (quote.startsWith('"') && quote.endsWith('"')) {
+                                quote = quote.slice(1, -1);
+                            }
+                            
+                            // 處理 CSV 中的雙引號轉義
+                            quote = quote.replace(/""/g, '"');
+                            
+                            if (quote && quote.length > 10) {
+                                parsedQuotes.push(quote);
+                                console.log(`成功解析第 ${parsedQuotes.length} 句：`, quote.substring(0, 50) + '...');
+                            }
+                        }
+                    }
+                }
+
+                if (parsedQuotes.length === 0) {
+                    throw new Error('未找到任何名句資料');
+                }
+
+                quotes = parsedQuotes;
+                console.log(`成功載入 ${quotes.length} 句名言`);
+                
+                showLoading(false);
+                enableButtons();
+                
+                // 顯示第一句
+                if (quotes.length > 0) {
+                    displayQuote(0);
+                }
+                
+            } catch (error) {
+                console.error('載入名句資料時發生錯誤：', error);
+                showError(`載入失敗：${error.message}，使用備用資料`);
+                
+                // 使用備用資料
+                quotes = [...FALLBACK_QUOTES];
+                console.log('使用備用資料，共', quotes.length, '句');
+                
+                showLoading(false);
+                enableButtons();
+                displayQuote(0);
+                
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // 顯示載入狀態
+        function showLoading(show) {
+            elements.loadingIndicator.style.display = show ? 'flex' : 'none';
+            elements.quoteText.style.display = show ? 'none' : 'block';
+            elements.quoteNumber.style.display = show ? 'none' : 'inline-block';
+        }
+
+        // 顯示錯誤訊息
+        function showError(message) {
+            elements.errorMessage.textContent = message;
+            elements.errorMessage.style.display = 'block';
+            setTimeout(() => {
+                elements.errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // 隱藏錯誤訊息
+        function hideError() {
+            elements.errorMessage.style.display = 'none';
+        }
+
+        // 啟用按鈕
+        function enableButtons() {
+            elements.randomBtn.disabled = false;
+            elements.nextBtn.disabled = false;
+            elements.prevBtn.disabled = false;
+        }
+
+        // 顯示名句
+        function displayQuote(index) {
+            if (quotes.length === 0) return;
+            
+            elements.quoteDisplay.classList.remove('fade-in');
+            
+            // 添加淡出效果
+            elements.quoteDisplay.style.opacity = '0.7';
+            elements.quoteDisplay.style.transform = 'scale(0.98)';
+            
+            setTimeout(() => {
+                elements.quoteText.textContent = quotes[index];
+                elements.quoteNumber.textContent = `第 ${index + 1} 句 / 共 ${quotes.length} 句`;
+                elements.quoteDisplay.classList.add('fade-in');
+                elements.quoteDisplay.style.opacity = '1';
+                elements.quoteDisplay.style.transform = 'scale(1)';
+            }, 150);
+            
+            currentIndex = index;
+        }
+
+        // 隨機顯示名句
+        function getRandomQuote() {
+            if (quotes.length === 0) return;
+            
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * quotes.length);
+            } while (randomIndex === currentIndex && quotes.length > 1);
+            
+            displayQuote(randomIndex);
+        }
+
+        // 下一句
+        function getNextQuote() {
+            if (quotes.length === 0) return;
+            const nextIndex = (currentIndex + 1) % quotes.length;
+            displayQuote(nextIndex);
+        }
+
+        // 上一句
+        function getPrevQuote() {
+            if (quotes.length === 0) return;
+            const prevIndex = currentIndex === 0 ? quotes.length - 1 : currentIndex - 1;
+            displayQuote(prevIndex);
+        }
+
+        // 備用資料
+        function getFallbackQuotes() {
+            return [...FALLBACK_QUOTES];
+        }
+
+        // 鍵盤快捷鍵
+        document.addEventListener('keydown', function(e) {
+            if (isLoading) return;
+            
+            switch(e.key) {
+                case 'ArrowRight':
+                case ' ':
+                    e.preventDefault();
+                    getNextQuote();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    getPrevQuote();
+                    break;
+                case 'r':
+                case 'R':
+                    e.preventDefault();
+                    getRandomQuote();
+                    break;
+            }
+        });
+
+        // 觸控滑動支持
+        let startX = 0;
+        let startY = 0;
+
+        elements.quoteDisplay.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+
+        elements.quoteDisplay.addEventListener('touchend', function(e) {
+            if (!startX || !startY || isLoading) return;
+            
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            
+            const diffX = startX - endX;
+            const diffY = startY - endY;
+            
+            // 確保是水平滑動而非垂直滑動
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                if (diffX > 0) {
+                    // 左滑 - 下一句
+                    getNextQuote();
+                } else {
+                    // 右滑 - 上一句
+                    getPrevQuote();
+                }
+            }
+            
+            startX = 0;
+            startY = 0;
+        });
+
+        // 頁面載入時開始載入資料
+        window.onload = function() {
+            setTimeout(function() {
+                loadQuotesFromCSV();
+            }, 500);
+        };
+    </script>
+</body>
+</html>
