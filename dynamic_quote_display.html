@@ -162,6 +162,7 @@
             }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -193,9 +194,9 @@
     </div>
 
     <script>
-        // 使用 Google Sheets 公開 HTML，透過 AllOrigins 代理以解決 CORS
-        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQp08ZcC5kK1DRs8jE0FYXwmFLh5wXTxJZgdjuOK8s_UIcovZaqKqJhRIAa-Qz3yh5O80cs55euiKp/pubhtml';
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(sheetUrl)}`;
+        // 修改 sheetUrl 和 proxyUrl 的定義
+const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQp08ZcC5kK1DRs8jE0FYXwmFLh5wXTxJZgdjuOK8s_UIcovZaqKqJhRIAa-Qz3yh5O80cs55euiKp/pub?output=csv';
+const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(sheetUrl)}`;
 
         let quotes = [];
         let currentIndex = 0;
@@ -283,29 +284,63 @@
             startX = 0; startY = 0;
         });
 
-        // 從 Google Sheets 載入名句
-        async function fetchQuotes() {
-            elements.loadingIndicator.style.display = 'flex';
-            try {
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error(`網路錯誤 (狀態碼: ${response.status})`);
-                const htmlText = await response.text();
-                const doc = new DOMParser().parseFromString(htmlText, 'text/html');
-                const rows = doc.querySelectorAll('tbody tr');
-                rows.forEach(row => {
-                    const cell = row.querySelector('td:nth-child(2)');
-                    if (cell) quotes.push(cell.textContent.trim());
-                });
-                if (quotes.length === 0) throw new Error('未從 Google Sheets 讀取到任何名句');
-                initializeApp();
-            } catch (error) {
-                elements.loadingIndicator.style.display = 'none';
-                elements.errorMessage.style.display = 'block';
-                elements.errorMessage.textContent = `讀取資料時發生錯誤: ${error.message}`;
-            }
+        // 重新實作 fetchQuotes
+async function fetchQuotes() {
+    elements.loadingIndicator.style.display = 'flex';
+    elements.errorMessage.style.display = 'none';
+
+    try {
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error(`網路錯誤 (狀態碼: ${response.status})`);
+        const csvText = await response.text();
+
+        // 使用 PapaParse 解析 CSV
+        const result = Papa.parse(csvText, {
+            header: false,
+            skipEmptyLines: false // 不跳過空行
+        });
+
+        // 直接處理所有資料行
+        const dataRows = result.data;
+
+        quotes = [];
+        dataRows.forEach((cols, idx) => {
+            // 只抓 A欄（第0欄）
+            quotes.push((cols[0] || '').trim());
+        });
+
+        // 除錯：顯示所有名句
+        console.log('全部名句:', quotes);
+
+        // 檢查是否有24行
+        if (quotes.length !== 24) {
+            throw new Error(`資料行數不符，取得 ${quotes.length} 行，預期 24 行。`);
         }
 
-        window.onload = fetchQuotes;
+        // 檢查是否全部為空
+        if (quotes.every(q => !q)) {
+            throw new Error('所有名句皆為空，請檢查 Google Sheets 資料。');
+        }
+
+        // 初始化 UI
+        initializeApp();
+
+    } catch (err) {
+        console.error('載入失敗:', err);
+        elements.loadingIndicator.style.display = 'none';
+        elements.errorMessage.style.display = 'block';
+        elements.errorMessage.textContent = `載入失敗: ${err.message}`;
+        setTimeout(() => {
+            console.log('5 秒後重新嘗試載入...');
+            fetchQuotes();
+        }, 5000);
+    }
+}
+
+// 立即執行
+fetchQuotes();
     </script>
+    <!-- 引入 PapaParse -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </body>
 </html>
