@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>真如24拔苦代受靈訓</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Noto Serif TC', 'Microsoft JhengHei', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 背景裝飾 */
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .bg-decoration::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 40%);
+            animation: bgFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-2%, 2%) rotate(1deg); }
+        }
+
+        /* 光暈效果 */
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.3;
+        }
+
+        .glow-orb-1 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #d4af37, #f4d03f);
+            top: 10%;
+            right: -100px;
+            animation: orbFloat1 15s ease-in-out infinite;
+        }
+
+        .glow-orb-2 {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #e8d5b7, #d4af37);
+            bottom: 20%;
+            left: -50px;
+            animation: orbFloat2 18s ease-in-out infinite;
+        }
+
+        @keyframes orbFloat1 {
+            0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+            50% { transform: translate(-30px, 20px); opacity: 0.4; }
+        }
+
+        @keyframes orbFloat2 {
+            0%, 100% { transform: translate(0, 0); opacity: 0.25; }
+            50% { transform: translate(20px, -15px); opacity: 0.35; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 100%;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        /* 頂部標題區 - 極簡 */
+        .header {
+            padding: 0.75rem 1rem 0.25rem;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .title-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .title-icon {
+            font-size: 1.1rem;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        h1 {
+            font-size: clamp(1.3rem, 5vw, 1.8rem);
+            font-weight: 600;
+            color: #f4d03f;
+            text-shadow: 0 2px 20px rgba(244, 208, 63, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            margin-top: 0.2rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+        }
+
+        /* 主要內容區 - 最大化 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0.5rem 0.75rem;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .quote-card {
+            position: relative;
+            background: linear-gradient(145deg, 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 1.25rem;
+            padding: 1.5rem 1.25rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .quote-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(212, 175, 55, 0.5) 50%, 
+                transparent 100%);
+        }
+
+        .quote-card.fade-in {
+            animation: cardFadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes cardFadeIn {
+            from { 
+                opacity: 0.5; 
+                transform: translateY(10px) scale(0.98); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+
+        /* 裝飾引號 */
+        .quote-decoration {
+            position: absolute;
+            font-size: 2.5rem;
+            color: rgba(212, 175, 55, 0.12);
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+
+        .quote-decoration.top {
+            top: 0.25rem;
+            left: 0.75rem;
+        }
+
+        .quote-decoration.bottom {
+            bottom: 0.25rem;
+            right: 0.75rem;
+            transform: rotate(180deg);
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            position: relative;
+        }
+
+        .loading-spinner::before,
+        .loading-spinner::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .loading-spinner::before {
+            width: 100%;
+            height: 100%;
+            border: 3px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .loading-spinner::after {
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top-color: #d4af37;
+            animation: spinnerRotate 1s linear infinite;
+        }
+
+        @keyframes spinnerRotate {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+        }
+
+        .quote-text {
+            font-size: clamp(1.4rem, 5.5vw, 1.9rem);
+            line-height: 1.9;
+            color: rgba(255, 255, 255, 0.95);
+            text-align: justify;
+            padding: 0.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-number {
+            display: block;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            font-size: 0.8rem;
+            color: rgba(212, 175, 55, 0.8);
+            text-align: center;
+            letter-spacing: 2px;
+            width: 100%;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.95rem;
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+
+        /* 控制按鈕區 - 極緊湊 */
+        .controls {
+            padding: 0.5rem 0.75rem;
+            padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0));
+            flex-shrink: 0;
+        }
+
+        .btn {
+            position: relative;
+            padding: 0.8rem 1.25rem;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            letter-spacing: 1px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.2) 50%, 
+                transparent 100%);
+            transition: left 0.5s ease;
+        }
+
+        .btn:active::before {
+            left: 100%;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-random {
+            width: 100%;
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 50%, #d4af37 100%);
+            background-size: 200% 200%;
+            color: #1a1a2e;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            margin-bottom: 0.5rem;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .btn-random:active:not(:disabled) {
+            transform: scale(0.98);
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-controls .btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .nav-controls .btn:active:not(:disabled) {
+            transform: scale(0.98);
+            background: rgba(212, 175, 55, 0.15);
+            border-color: rgba(212, 175, 55, 0.5);
+        }
+
+        .btn-icon {
+            margin-right: 0.4rem;
+        }
+
+        /* 滑動提示 - 隱藏 */
+        .swipe-hint {
+            display: none;
+        }
+
+        /* 桌面版優化 */
+        @media (min-width: 768px) {
+            body {
+                padding: 1.5rem;
+            }
+
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                border-radius: 1.5rem;
+                background: rgba(0, 0, 0, 0.2);
+                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+                overflow: hidden;
+            }
+
+            .header {
+                padding: 1rem 1.5rem 0.5rem;
+            }
+
+            .main-content {
+                padding: 0.75rem 1.5rem;
+            }
+
+            .quote-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .controls {
+                padding: 0.75rem 1.5rem 1rem;
+            }
+
+            .btn:hover:not(:disabled) {
+                transform: translateY(-2px);
+            }
+
+            .btn-random:hover:not(:disabled) {
+                box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
+            }
+
+            .nav-controls .btn:hover:not(:disabled) {
+                background: rgba(212, 175, 55, 0.15);
+                border-color: rgba(212, 175, 55, 0.5);
+            }
+        }
+
+        /* 小螢幕手機優化 */
+        @media (max-width: 380px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+
+            .quote-text {
+                font-size: 1.25rem;
+            }
+
+            .btn {
+                padding: 0.7rem 0.875rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        /* 橫向模式優化 */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .header {
+                padding: 0.4rem 0.75rem 0.2rem;
+            }
+
+            .main-content {
+                padding: 0.25rem 0.75rem;
+            }
+
+            .quote-card {
+                padding: 0.75rem 1rem;
+            }
+
+            .controls {
+                padding: 0.25rem 0.75rem;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+    <!-- 背景裝飾 -->
+    <div class="bg-decoration">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- 頂部標題 -->
+        <header class="header">
+            <div class="title-wrapper">
+                <span class="title-icon">✨</span>
+                <h1>真如24拔苦代受靈訓</h1>
+                <span class="title-icon">✨</span>
+            </div>
+            <p class="subtitle">將真如傳遞到世界到未來</p>
+        </header>
+
+        <!-- 主要內容區 -->
+        <main class="main-content">
+            <div class="quote-card" id="quoteDisplay">
+                <span class="quote-decoration top">"</span>
+                <span class="quote-decoration bottom">"</span>
+                
+                <div class="loading" id="loadingIndicator">
+                    <div class="loading-spinner"></div>
+                    <span class="loading-text">正在載入智慧法語...</span>
+                </div>
+                
+                <p class="quote-text" id="quoteText" style="display: none;">
+                    點擊「隨機取句」開始您的智慧之旅
+                </p>
+                
+                <span class="quote-number" id="quoteNumber" style="display: none;"></span>
+                
+                <div class="error-message" id="errorMessage" style="display: none;"></div>
+            </div>
+        </main>
+
+        <!-- 控制按鈕區 -->
+        <footer class="controls">
+            <button class="btn btn-random" id="randomBtn" onclick="getRandomQuote()" disabled>
+                <span class="btn-icon">🎲</span>
+                <span class="btn-text">隨機取句</span>
+            </button>
+            <div class="nav-controls">
+                <button class="btn" id="prevBtn" onclick="getPrevQuote()" disabled>
+                    <span class="btn-icon">◀</span>
+                    <span class="btn-text">上一句</span>
+                </button>
+                <button class="btn" id="nextBtn" onclick="getNextQuote()" disabled>
+                    <span class="btn-text">下一句</span>
+                    <span class="btn-icon">▶</span>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Google Sheets 資料來源
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQp08ZcC5kK1DRs8jE0FYXwmFLh5wXTxJZgdjuOK8s_UIcovZaqKqJhRIAa-Qz3yh5O80cs55euiKp/pub?gid=0&single=true&output=csv';
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(sheetUrl)}`;
+
+        let quotes = [];
+        let currentIndex = 0;
+
+        // UI 元素
+        const elements = {
+            quoteText: document.getElementById('quoteText'),
+            quoteNumber: document.getElementById('quoteNumber'),
+            quoteDisplay: document.getElementById('quoteDisplay'),
+            loadingIndicator: document.getElementById('loadingIndicator'),
+            errorMessage: document.getElementById('errorMessage'),
+            randomBtn: document.getElementById('randomBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            prevBtn: document.getElementById('prevBtn')
+        };
+
+        // 初始化應用程式
+        function initializeApp() {
+            elements.loadingIndicator.style.display = 'none';
+            elements.quoteText.style.display = 'block';
+            elements.quoteNumber.style.display = 'block';
+            elements.randomBtn.disabled = false;
+            elements.nextBtn.disabled = false;
+            elements.prevBtn.disabled = false;
+            displayQuote(0);
+            console.log(`已載入 ${quotes.length} 句真如名言`);
+        }
+
+        // 顯示名句
+        function displayQuote(index) {
+            if (quotes.length === 0) return;
+            
+            elements.quoteDisplay.classList.remove('fade-in');
+            
+            // 觸發重繪以重新開始動畫
+            void elements.quoteDisplay.offsetWidth;
+            
+            elements.quoteText.textContent = quotes[index];
+            elements.quoteNumber.textContent = `第 ${index + 1} 句 ／ 共 ${quotes.length} 句`;
+            elements.quoteDisplay.classList.add('fade-in');
+            currentIndex = index;
+
+            // 震動反饋（如果裝置支援）
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        }
+
+        // 隨機、下一句、上一句 函式
+        function getRandomQuote() {
+            if (quotes.length === 0) return;
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * quotes.length);
+            } while (randomIndex === currentIndex && quotes.length > 1);
+            displayQuote(randomIndex);
+        }
+
+        function getNextQuote() {
+            if (quotes.length === 0) return;
+            displayQuote((currentIndex + 1) % quotes.length);
+        }
+
+        function getPrevQuote() {
+            if (quotes.length === 0) return;
+            displayQuote(currentIndex === 0 ? quotes.length - 1 : currentIndex - 1);
+        }
+
+        // 鍵盤快捷鍵
+        document.addEventListener('keydown', e => {
+            if (['ArrowRight', ' '].includes(e.key)) { 
+                e.preventDefault(); 
+                getNextQuote(); 
+            } else if (e.key === 'ArrowLeft') { 
+                e.preventDefault(); 
+                getPrevQuote(); 
+            } else if (['r', 'R'].includes(e.key)) { 
+                e.preventDefault(); 
+                getRandomQuote(); 
+            }
+        });
+
+        // 觸控滑動支援
+        let startX = 0, startY = 0;
+        let isSwiping = false;
+
+        elements.quoteDisplay.addEventListener('touchstart', e => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            isSwiping = true;
+        }, { passive: true });
+
+        elements.quoteDisplay.addEventListener('touchmove', e => {
+            if (!isSwiping) return;
+            const currentX = e.touches[0].clientX;
+            const diffX = startX - currentX;
+            
+            // 視覺反饋
+            if (Math.abs(diffX) > 10) {
+                elements.quoteDisplay.style.transform = `translateX(${-diffX * 0.1}px)`;
+            }
+        }, { passive: true });
+
+        elements.quoteDisplay.addEventListener('touchend', e => {
+            if (!isSwiping) return;
+            
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            const diffX = startX - endX;
+            const diffY = startY - endY;
+
+            // 重置位置
+            elements.quoteDisplay.style.transform = '';
+
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                diffX > 0 ? getNextQuote() : getPrevQuote();
+            }
+
+            startX = 0;
+            startY = 0;
+            isSwiping = false;
+        });
+
+        // 載入資料
+        async function fetchQuotes() {
+            elements.loadingIndicator.style.display = 'flex';
+            elements.errorMessage.style.display = 'none';
+
+            try {
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error(`網路錯誤 (狀態碼: ${response.status})`);
+                const csvText = await response.text();
+
+                const result = Papa.parse(csvText, {
+                    header: false,
+                    skipEmptyLines: false
+                });
+
+                const dataRows = result.data;
+                quotes = [];
+                
+                dataRows.forEach((cols, idx) => {
+                    quotes.push((cols[0] || '').trim());
+                });
+
+                console.log('全部名句:', quotes);
+
+                if (quotes.length !== 24) {
+                    throw new Error(`資料行數不符，取得 ${quotes.length} 行，預期 24 行。`);
+                }
+
+                if (quotes.every(q => !q)) {
+                    throw new Error('所有名句皆為空，請檢查 Google Sheets 資料。');
+                }
+
+                initializeApp();
+
+            } catch (err) {
+                console.error('載入失敗:', err);
+                elements.loadingIndicator.style.display = 'none';
+                elements.errorMessage.style.display = 'block';
+                elements.errorMessage.textContent = `載入失敗: ${err.message}`;
+                
+                setTimeout(() => {
+                    console.log('5 秒後重新嘗試載入...');
+                    fetchQuotes();
+                }, 5000);
+            }
+        }
+
+        // 立即執行
+        fetchQuotes();
+    </script>
+</body>
+</html>
